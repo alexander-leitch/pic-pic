@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
 import 'package:flutter/animation.dart';
+import 'package:provider/provider.dart';
+import 'splash_screen.dart';
+import 'screens/profile_screen.dart';
+import 'providers/image_provider.dart' as image_prov;
+import 'models/image_model.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,30 +17,17 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PicPic',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+    return ChangeNotifierProvider(
+      create: (context) => image_prov.ImageProvider(),
+      child: MaterialApp(
+        title: 'PicPic',
+        theme: ThemeData(
+          colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        ),
+        home: const SplashScreen(),
       ),
-      home: const MyHomePage(),
     );
   }
 }
@@ -48,9 +40,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-  String? _currentUrl;
-  String? _nextUrl;
-  List<String> _previousUrls = [];
   late AnimationController _animationController;
   late Tween<double> _offsetTween;
   late Animation<double> _offsetAnimation;
@@ -63,6 +52,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _setupAnimations();
+    _loadImages();
+  }
+
+  void _setupAnimations() {
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -74,6 +68,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         _offset = _offsetAnimation.value;
       });
     });
+
     _verticalAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -87,24 +82,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         _verticalOffset = _verticalOffsetAnimation.value;
       });
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchAndPreload();
-    });
   }
 
-  Future<void> _fetchAndPreload() async {
-    _currentUrl = await _fetchImageUrl();
-    await precacheImage(NetworkImage(_currentUrl!), context);
-    _nextUrl = await _fetchImageUrl();
-    await precacheImage(NetworkImage(_nextUrl!), context);
-    setState(() {});
-  }
-
-  Future<void> _fetchNext() async {
-    if (_nextUrl != null) return;
-    _nextUrl = await _fetchImageUrl();
-    await precacheImage(NetworkImage(_nextUrl!), context);
-    setState(() {});
+  void _loadImages() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (mounted) {
+      Provider.of<image_prov.ImageProvider>(context, listen: false).initialize();
+    }
   }
 
   void _animateTo(double target, {VoidCallback? then}) {
@@ -125,116 +109,317 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     });
   }
 
-  Future<String> _fetchImageUrl() async {
-    final random = Random();
-    final seed = random.nextInt(10000); // Random seed
-    return 'https://picsum.photos/seed/$seed/800/600';
+  void _showImageDialog(BuildContext context, ImageModel image) {
+    final userName = image.user.name;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                image.title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'by @$userName',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(image.isLiked == true ? Icons.favorite : Icons.favorite_border),
+                title: Text(image.isLiked == true ? 'Unlike' : 'Like'),
+                subtitle: Text('${image.likeCount} likes'),
+                onTap: () {
+                  Provider.of<image_prov.ImageProvider>(context, listen: false).toggleLike();
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(image.isLiked == true ? 'Liked!' : 'Unliked')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.comment),
+                title: const Text('Comment'),
+                subtitle: const Text('Add a comment'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Comment feature coming soon!')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.expand_more),
+                title: const Text('See More'),
+                subtitle: const Text('View similar images'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Loading similar images...')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.expand_less),
+                title: const Text('See Less'),
+                subtitle: const Text('Show fewer like this'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Will show fewer similar images')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text('See User'),
+                subtitle: const Text('View uploader profile'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(
+                        userId: image.user.id,
+                        userName: userName,
+                        userAvatar: image.user.avatarUrl ?? 'https://picsum.photos/seed/$userName/200/200',
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.account_circle),
+                title: const Text('My Profile'),
+                subtitle: const Text('Go to your profile'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(
+                        userId: 1,
+                        userName: 'CurrentUser',
+                        userAvatar: 'https://picsum.photos/seed/currentuser/200/200',
+                        userDescription: 'PicPic enthusiast | Love sharing moments',
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_currentUrl == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return GestureDetector(
-      onHorizontalDragUpdate: (details) {
-        setState(() {
-          _offset += details.delta.dx;
-        });
-      },
-      onHorizontalDragEnd: (details) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        if (_offset.abs() > screenWidth / 2) {
-          final target = _offset > 0 ? screenWidth : -screenWidth;
-          _animateTo(
-            target,
-            then: () {
-              setState(() {
-                _previousUrls.add(_currentUrl!);
-                _currentUrl = _nextUrl;
-                _nextUrl = null;
-                _offset = 0;
-              });
-              _fetchNext();
-            },
+    return Consumer<image_prov.ImageProvider>(
+      builder: (context, imageProvider, child) {
+        if (imageProvider.isLoading && imageProvider.currentImage == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
           );
-        } else {
-          _animateTo(0);
         }
-      },
-      onVerticalDragUpdate: (details) {
-        setState(() {
-          _verticalOffset += details.delta.dy;
-        });
-      },
-      onVerticalDragEnd: (details) {
-        final screenHeight = MediaQuery.of(context).size.height;
-        if (_verticalOffset < -screenHeight / 2) {
-          _animateVerticalTo(
-            -screenHeight,
-            then: () {
-              setState(() {
-                _previousUrls.add(_currentUrl!);
-                _currentUrl = _nextUrl;
-                _nextUrl = null;
-                _verticalOffset = 0;
-              });
-              _fetchNext();
-            },
-          );
-        } else if (_verticalOffset > screenHeight / 2) {
-          if (_previousUrls.isNotEmpty) {
-            _animateVerticalTo(
-              screenHeight,
-              then: () {
-                setState(() {
-                  _nextUrl = _currentUrl;
-                  _currentUrl = _previousUrls.removeLast();
-                  _verticalOffset = 0;
-                });
-              },
-            );
-          } else {
-            _animateVerticalTo(0);
-          }
-        } else {
-          _animateVerticalTo(0);
-        }
-      },
-      child: SizedBox.expand(
-        child: Stack(
-          children: [
-            if (_nextUrl != null)
-              SizedBox.expand(
-                child: Image.network(
-                  _nextUrl!,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(child: CircularProgressIndicator());
-                  },
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Center(child: Text('Failed to load image')),
-                ),
-              ),
-            Transform.translate(
-              offset: Offset(_offset, _verticalOffset),
-              child: SizedBox.expand(
-                child: Image.network(
-                  _currentUrl!,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(child: CircularProgressIndicator());
-                  },
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Center(child: Text('Failed to load image')),
-                ),
+
+        if (imageProvider.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text('Error: ${imageProvider.errorMessage}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      imageProvider.reset();
+                      imageProvider.initialize();
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          );
+        }
+
+        final currentImage = imageProvider.currentImage;
+        final nextImage = imageProvider.nextImage;
+
+        if (currentImage == null) {
+          return const Scaffold(
+            body: Center(child: Text('No images available')),
+          );
+        }
+
+        return GestureDetector(
+          onHorizontalDragUpdate: (details) {
+            setState(() {
+              _offset += details.delta.dx;
+            });
+          },
+          onHorizontalDragEnd: (details) {
+            final screenWidth = MediaQuery.of(context).size.width;
+            if (_offset.abs() > screenWidth / 2) {
+              final target = _offset > 0 ? screenWidth : -screenWidth;
+              _animateTo(
+                target,
+                then: () {
+                  imageProvider.goToNextImage();
+                  _offset = 0;
+                },
+              );
+            } else {
+              _animateTo(0);
+            }
+          },
+          onVerticalDragUpdate: (details) {
+            setState(() {
+              _verticalOffset += details.delta.dy;
+            });
+          },
+          onVerticalDragEnd: (details) {
+            final screenHeight = MediaQuery.of(context).size.height;
+            if (_verticalOffset < -screenHeight / 2) {
+              _animateVerticalTo(
+                -screenHeight,
+                then: () {
+                  imageProvider.goToNextImage();
+                  _verticalOffset = 0;
+                },
+              );
+            } else if (_verticalOffset > screenHeight / 2) {
+              if (imageProvider.currentIndex > 0) {
+                _animateVerticalTo(
+                  screenHeight,
+                  then: () {
+                    imageProvider.goToPreviousImage();
+                    _verticalOffset = 0;
+                  },
+                );
+              } else {
+                _animateVerticalTo(0);
+              }
+            } else {
+              _animateVerticalTo(0);
+            }
+          },
+          onLongPress: () => _showImageDialog(context, currentImage),
+          child: SizedBox.expand(
+            child: Stack(
+              children: [
+                // Left swipe indicator (green)
+                if (_offset < -50)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.center,
+                          colors: [
+                            Colors.green.withOpacity(0.3),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.all(32.0),
+                          child: Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 60,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                // Right swipe indicator (red)
+                if (_offset > 50)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.center,
+                          end: Alignment.centerRight,
+                          colors: [
+                            Colors.transparent,
+                            Colors.red.withOpacity(0.3),
+                          ],
+                        ),
+                      ),
+                      child: const Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: EdgeInsets.all(32.0),
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.red,
+                            size: 60,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                // Next image
+                if (nextImage != null)
+                  SizedBox.expand(
+                    child: Image.network(
+                      nextImage.url,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Center(child: Text('Failed to load image')),
+                    ),
+                  ),
+                // Current image
+                Transform.translate(
+                  offset: Offset(_offset, _verticalOffset),
+                  child: SizedBox.expand(
+                    child: Image.network(
+                      currentImage.url,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Center(child: Text('Failed to load image')),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

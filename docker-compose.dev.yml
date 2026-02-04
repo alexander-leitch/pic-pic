@@ -1,0 +1,37 @@
+services:
+  # Development environment with hot reload
+  api-dev:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    container_name: picpic_api_dev
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./api:/var/www
+      - /var/www/vendor
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=mysql
+      - DB_DATABASE=picpic
+      - DB_USERNAME=picpic_user
+      - DB_PASSWORD=user_password
+      - REDIS_HOST=redis
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+      - APP_ENV=local
+      - APP_DEBUG=true
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - picpic_network
+    command: >
+      sh -c "composer install &&
+             php artisan migrate --force &&
+             php artisan serve --host=0.0.0.0 --port=8000"
+
+networks:
+  picpic_network:
+    external: true
