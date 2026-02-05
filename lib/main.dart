@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:math';
-import 'package:flutter/animation.dart';
 import 'package:provider/provider.dart';
 import 'splash_screen.dart';
 import 'screens/profile_screen.dart';
@@ -24,7 +22,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'PicPic',
         theme: ThemeData(
-          colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
         home: const SplashScreen(),
       ),
@@ -340,7 +338,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                           begin: Alignment.centerLeft,
                           end: Alignment.center,
                           colors: [
-                            Colors.green.withOpacity(0.3),
+                            Colors.green.withValues(alpha: 0.3),
                             Colors.transparent,
                           ],
                         ),
@@ -368,7 +366,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                           end: Alignment.centerRight,
                           colors: [
                             Colors.transparent,
-                            Colors.red.withOpacity(0.3),
+                            Colors.red.withValues(alpha: 0.3),
                           ],
                         ),
                       ),

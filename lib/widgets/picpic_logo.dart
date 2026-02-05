@@ -17,23 +17,23 @@ class PicPicLogo extends StatelessWidget {
       height: size,
       child: Stack(
         children: [
-          // Top circle
+          // Top circle (largest)
           Positioned(
             top: size * 0.0,
             left: size * 0.375,
             child: Container(
-              width: size * 0.25,
-              height: size * 0.25,
+              width: size * 0.30, // Larger: 30% of size
+              height: size * 0.30,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.transparent,
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.95),
+                  color: Colors.white.withValues(alpha: 0.95),
                   width: size * 0.04, // Thick outline
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: size * 0.05,
                     offset: Offset(0, size * 0.02),
                   ),
@@ -41,23 +41,23 @@ class PicPicLogo extends StatelessWidget {
               ),
             ),
           ),
-          // Bottom left circle
+          // Bottom left circle (medium)
           Positioned(
             top: size * 0.5,
             left: size * 0.125,
             child: Container(
-              width: size * 0.25,
+              width: size * 0.25, // Medium: 25% of size
               height: size * 0.25,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.transparent,
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.95),
+                  color: Colors.white.withValues(alpha: 0.95),
                   width: size * 0.04, // Thick outline
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: size * 0.05,
                     offset: Offset(0, size * 0.02),
                   ),
@@ -65,23 +65,23 @@ class PicPicLogo extends StatelessWidget {
               ),
             ),
           ),
-          // Bottom right circle
+          // Bottom right circle (smallest)
           Positioned(
             top: size * 0.5,
             left: size * 0.625,
             child: Container(
-              width: size * 0.25,
-              height: size * 0.25,
+              width: size * 0.20, // Smaller: 20% of size
+              height: size * 0.20,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.transparent,
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.95),
+                  color: Colors.white.withValues(alpha: 0.95),
                   width: size * 0.04, // Thick outline
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: size * 0.05,
                     offset: Offset(0, size * 0.02),
                   ),

@@ -246,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
+            SizedBox(
               height: 200,
               width: double.infinity,
               child: ClipRRect(

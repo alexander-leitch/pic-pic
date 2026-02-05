@@ -24,7 +24,9 @@ class ImageProvider extends ChangeNotifier {
 
   // Initialize and load first images
   Future<void> initialize() async {
-    await loadImages();
+    if (_images.isEmpty && !_isLoading) {
+      await loadImages();
+    }
   }
 
   // Load images from API
@@ -64,6 +66,8 @@ class ImageProvider extends ChangeNotifier {
         if (_images.length > 1) {
           _nextImage = _images[1];
         }
+      } else if (_nextImage == null) {
+        _updateNextImage();
       }
 
       notifyListeners();
@@ -82,21 +86,13 @@ class ImageProvider extends ChangeNotifier {
 
   // Navigate to next image
   void goToNextImage() {
-    if (_currentImage == null) return;
+    if (_currentImage == null || _nextImage == null) return;
 
     // Add current image to previous
     _previousImages.add(_currentImage!);
 
     // Set next image as current
-    if (_nextImage != null) {
-      _currentImage = _nextImage!;
-    } else {
-      // Try to get next image from the list
-      final currentIndex = _images.indexOf(_currentImage!);
-      if (currentIndex < _images.length - 1) {
-        _currentImage = _images[currentIndex + 1];
-      }
-    }
+    _currentImage = _nextImage!;
 
     // Find and set the next image
     _updateNextImage();
