@@ -42,14 +42,15 @@ class ImageProvider extends ChangeNotifier {
         _hasMoreImages = true;
       }
 
-      debugPrint('🔍 Loading images from API - page: $_currentPage, limit: 20, sort: latest');
+      debugPrint(
+        '🔍 Loading images from API - page: $_currentPage, limit: 20, sort: latest',
+      );
       final response = await ApiService.getImages(
         page: _currentPage,
         limit: 20,
         sort: 'latest',
       );
-      
-      debugPrint('📝 API Response received successfully');
+
       final paginatedResponse = PaginatedImageResponse.fromJson(response);
       debugPrint('📊 Parsed ${paginatedResponse.data.length} images');
 
@@ -130,7 +131,7 @@ class ImageProvider extends ChangeNotifier {
 
     try {
       final response = await ApiService.likeImage(_currentImage!.id);
-      
+
       // Update the image with new like count
       _currentImage = ImageModel(
         id: _currentImage!.id,
@@ -161,7 +162,7 @@ class ImageProvider extends ChangeNotifier {
 
     try {
       final response = await ApiService.unlikeImage(_currentImage!.id);
-      
+
       // Update the image with new like count
       _currentImage = ImageModel(
         id: _currentImage!.id,
@@ -226,7 +227,7 @@ class ImageProvider extends ChangeNotifier {
 
   bool _shouldLoadMoreImages() {
     if (_images.isEmpty) return false;
-    
+
     final currentIndex = _images.indexOf(_currentImage!);
     return currentIndex >= _images.length - 3 && _hasMoreImages;
   }

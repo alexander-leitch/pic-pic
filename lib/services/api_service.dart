@@ -25,19 +25,21 @@ class ApiService {
   }
 
   // Get images with pagination
-  static Future<Map<String, dynamic>> getImages({
+  static Future<dynamic> getImages({
     int page = 1,
     int limit = 20,
     String sort = 'latest',
   }) async {
     try {
       final response = await http.get(
-        Uri.parse('${ApiConfig.effectiveBaseUrl}/images?page=$page&limit=$limit&sort=$sort'),
+        Uri.parse(
+          '${ApiConfig.effectiveBaseUrl}/images?page=$page&limit=$limit&sort=$sort',
+        ),
         headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body) as Map<String, dynamic>;
+        return json.decode(response.body);
       } else {
         throw Exception('Failed to load images: ${response.statusCode}');
       }
@@ -72,7 +74,9 @@ class ApiService {
   }) async {
     try {
       final response = await http.get(
-        Uri.parse('${ApiConfig.effectiveBaseUrl}/users/$userId/images?page=$page&limit=$limit'),
+        Uri.parse(
+          '${ApiConfig.effectiveBaseUrl}/users/$userId/images?page=$page&limit=$limit',
+        ),
         headers: _getHeaders(),
       );
 
@@ -130,7 +134,9 @@ class ApiService {
   }) async {
     try {
       final response = await http.get(
-        Uri.parse('${ApiConfig.effectiveBaseUrl}/images/$imageId/comments?page=$page&limit=$limit'),
+        Uri.parse(
+          '${ApiConfig.effectiveBaseUrl}/images/$imageId/comments?page=$page&limit=$limit',
+        ),
         headers: _getHeaders(),
       );
 
