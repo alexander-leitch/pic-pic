@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../config/api_config.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:8000/api';
   static String? _authToken;
 
   // Set authentication token
@@ -32,7 +32,7 @@ class ApiService {
   }) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/images?page=$page&limit=$limit&sort=$sort'),
+        Uri.parse('${ApiConfig.effectiveBaseUrl}/images?page=$page&limit=$limit&sort=$sort'),
         headers: _getHeaders(),
       );
 
@@ -50,7 +50,7 @@ class ApiService {
   static Future<Map<String, dynamic>> getImage(int imageId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/images/$imageId'),
+        Uri.parse('${ApiConfig.effectiveBaseUrl}/images/$imageId'),
         headers: _getHeaders(),
       );
 
@@ -72,7 +72,7 @@ class ApiService {
   }) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/users/$userId/images?page=$page&limit=$limit'),
+        Uri.parse('${ApiConfig.effectiveBaseUrl}/users/$userId/images?page=$page&limit=$limit'),
         headers: _getHeaders(),
       );
 
@@ -90,7 +90,7 @@ class ApiService {
   static Future<Map<String, dynamic>> likeImage(int imageId) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/images/$imageId/like'),
+        Uri.parse('${ApiConfig.effectiveBaseUrl}/images/$imageId/like'),
         headers: _getHeaders(requireAuth: true),
       );
 
@@ -108,7 +108,7 @@ class ApiService {
   static Future<Map<String, dynamic>> unlikeImage(int imageId) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl/images/$imageId/like'),
+        Uri.parse('${ApiConfig.effectiveBaseUrl}/images/$imageId/like'),
         headers: _getHeaders(requireAuth: true),
       );
 
@@ -130,7 +130,7 @@ class ApiService {
   }) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/images/$imageId/comments?page=$page&limit=$limit'),
+        Uri.parse('${ApiConfig.effectiveBaseUrl}/images/$imageId/comments?page=$page&limit=$limit'),
         headers: _getHeaders(),
       );
 
@@ -151,7 +151,7 @@ class ApiService {
   ) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/images/$imageId/comments'),
+        Uri.parse('${ApiConfig.effectiveBaseUrl}/images/$imageId/comments'),
         headers: _getHeaders(requireAuth: true),
         body: json.encode({'content': content}),
       );
@@ -170,7 +170,7 @@ class ApiService {
   static Future<Map<String, dynamic>> getCurrentUser() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/user'),
+        Uri.parse('${ApiConfig.effectiveBaseUrl}/user'),
         headers: _getHeaders(requireAuth: true),
       );
 
@@ -186,7 +186,7 @@ class ApiService {
 
   // SSO authentication redirect
   static String getSSOAuthUrl() {
-    return '$baseUrl/auth/redirect';
+    return '${ApiConfig.effectiveBaseUrl}/auth/redirect';
   }
 
   // Handle SSO callback

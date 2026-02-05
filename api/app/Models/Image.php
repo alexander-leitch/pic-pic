@@ -3,22 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Image extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'title',
         'description',
         'url',
         'thumbnail_url',
         'width',
         'height',
+        'user_id',
         'like_count',
         'comment_count',
         'is_active',
@@ -30,6 +31,8 @@ class Image extends Model
         'like_count' => 'integer',
         'comment_count' => 'integer',
         'is_active' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -44,37 +47,25 @@ class Image extends Model
 
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class)->where('is_active', true);
     }
 
-    public function likedByUsers(): BelongsToMany
+    public function isLikedBy(?User $user): bool
     {
-        return $this->belongsToMany(User::class, 'likes');
-    }
+        if (!$user) {
+            return false;
+        }
 
-    public function isLikedBy(User $user): bool
-    {
         return $this->likes()->where('user_id', $user->id)->exists();
     }
 
-    public function incrementLikeCount(): void
+    public function getIsLikedAttribute(?bool $value): bool
     {
-        $this->increment('like_count');
-    }
+        if (func_num_args() > 0) {
+            return $value;
+        }
 
-    public function decrementLikeCount(): void
-    {
-        $this->decrement('like_count');
-    }
-
-    public function incrementCommentCount(): void
-    {
-        $this->increment('comment_count');
-    }
-
-    public function decrementCommentCount(): void
-    {
-        $this->decrement('comment_count');
+        return $this->isLikedBy(auth()->user());
     }
 
     public function scopeActive($query)
@@ -82,13 +73,13 @@ class Image extends Model
         return $query->where('is_active', true);
     }
 
-    public function scopeWithLikeCount($query)
+    public function scopeLatest($query)
     {
-        return $query->withCount('likes');
+        return $query->orderBy('created_at', 'desc');
     }
 
-    public function scopeWithCommentCount($query)
+    public function scopePopular($query)
     {
-        return $query->withCount('comments');
+        return $query->orderBy('like_count', 'desc');
     }
 }

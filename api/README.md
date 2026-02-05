@@ -1,167 +1,59 @@
-# PicPic API
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-Laravel PHP API for the PicPic Flutter application.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-## Features
+## About Laravel
 
-- **SSO Authentication**: Users can only register via Single Sign-On
-- **Image Management**: Upload, view, and manage images
-- **User Interactions**: Like/unlike images, add comments
-- **Admin Management**: Admin users managed via command line only
-- **RESTful API**: Clean API endpoints for Flutter integration
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-## Installation
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-1. Clone the repository and navigate to the `api` directory
-2. Install dependencies:
-   ```bash
-   composer install
-   ```
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-3. Copy environment file:
-   ```bash
-   cp .env.example .env
-   ```
+## Learning Laravel
 
-4. Generate application key:
-   ```bash
-   php artisan key:generate
-   ```
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
 
-5. Configure your `.env` file with database and SSO settings
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-6. Run migrations:
-   ```bash
-   php artisan migrate
-   ```
+## Laravel Sponsors
 
-## Environment Configuration
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-Update your `.env` file with:
+### Premium Partners
 
-```env
-# Database
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=picpic
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
+- **[Vehikl](https://vehikl.com)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Redberry](https://redberry.international/laravel-development)**
+- **[Active Logic](https://activelogic.com)**
 
-# SSO Configuration
-SSO_PROVIDER=google
-SSO_CLIENT_ID=your_google_client_id
-SSO_CLIENT_SECRET=your_google_client_secret
-SSO_REDIRECT_URI=http://localhost/auth/callback
+## Contributing
 
-# Admin Configuration
-ADMIN_EMAIL=admin@picpic.com
-```
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Admin Commands
+## Code of Conduct
 
-### Create Admin User
-```bash
-php artisan admin:create admin@picpic.com "Admin User" --password=secure_password
-```
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-### List All Users
-```bash
-php artisan admin:users
-```
+## Security Vulnerabilities
 
-### List Only Admin Users
-```bash
-php artisan admin:users --admin-only
-```
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-### List Only Inactive Users
-```bash
-php artisan admin:users --inactive
-```
+## License
 
-### Manage User Status
-```bash
-# Activate a user
-php artisan admin:manage-user user@example.com --activate
-
-# Deactivate a user
-php artisan admin:manage-user user@example.com --deactivate
-
-# Make user admin
-php artisan admin:manage-user user@example.com --make-admin
-
-# Remove admin status
-php artisan admin:manage-user user@example.com --remove-admin
-```
-
-## API Endpoints
-
-### Public Endpoints
-- `GET /api/images` - Get paginated list of images
-- `GET /api/images/{id}` - Get single image with details
-- `GET /api/images/{imageId}/comments` - Get image comments
-- `GET /api/users/{userId}/images` - Get user's images
-- `GET /api/auth/redirect` - Redirect to SSO provider
-- `GET /api/auth/callback` - Handle SSO callback
-
-### Protected Endpoints (Require Authentication)
-- `GET /api/user` - Get current user info
-- `POST /api/logout` - Logout user
-- `POST /api/images` - Upload new image
-- `POST /api/images/{id}/like` - Like an image
-- `DELETE /api/images/{id}/like` - Unlike an image
-- `POST /api/images/{imageId}/comments` - Add comment
-- `DELETE /api/comments/{id}` - Delete comment
-
-### Admin Endpoints (Require Admin Access)
-- `GET /api/admin/users` - List all users
-- `DELETE /api/admin/users/{id}` - Delete user
-
-## Authentication Flow
-
-1. Flutter app redirects to `/api/auth/redirect`
-2. User authenticates with SSO provider (Google, etc.)
-3. Provider redirects to `/api/auth/callback`
-4. API creates/updates user and returns JWT token
-5. Flutter app uses token for authenticated requests
-
-## Database Schema
-
-### Users
-- id, name, email, password (nullable)
-- sso_provider, sso_id, avatar_url
-- is_admin, is_active, timestamps
-
-### Images
-- id, user_id, title, description
-- url, thumbnail_url, width, height
-- like_count, comment_count, is_active, timestamps
-
-### Likes
-- id, user_id, image_id, timestamps
-- Unique constraint on (user_id, image_id)
-
-### Comments
-- id, user_id, image_id, content
-- is_active, timestamps
-
-## Security Features
-
-- SSO-only authentication (no password registration)
-- Admin-only user management
-- Sanctum token-based API authentication
-- Request validation and sanitization
-- Soft relationships with proper foreign keys
-
-## Development
-
-Start development server:
-```bash
-php artisan serve
-```
-
-Run tests:
-```bash
-php artisan test
-```
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

@@ -16,11 +16,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'sso_provider',
-        'sso_id',
         'avatar_url',
+        'description',
+        'social_links',
         'is_admin',
         'is_active',
+        'sso_provider',
+        'sso_id',
     ];
 
     protected $hidden = [
@@ -30,6 +32,8 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'social_links' => 'array',
         'is_admin' => 'boolean',
         'is_active' => 'boolean',
     ];
@@ -47,11 +51,6 @@ class User extends Authenticatable
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
-    }
-
-    public function likedImages()
-    {
-        return $this->belongsToMany(Image::class, 'likes');
     }
 
     public function isAdmin(): bool

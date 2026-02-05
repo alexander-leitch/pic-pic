@@ -41,7 +41,7 @@ services:
       - ./api:/var/www
       - ./api/docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     ports:
-      - "8000:8000"
+      - "0.0.0.0:8000:8000"  # Bind to all interfaces for Tailscale
     environment:
       - DB_HOST=mysql
       - DB_DATABASE=picpic
@@ -50,6 +50,9 @@ services:
       - REDIS_HOST=redis
       - CACHE_DRIVER=redis
       - SESSION_DRIVER=redis
+      - APP_URL=http://0.0.0.0:8000  # Use 0.0.0.0 for Tailscale compatibility
+      - APP_ENV=local
+      - APP_DEBUG=true
     depends_on:
       - mysql
       - redis

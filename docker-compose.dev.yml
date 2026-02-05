@@ -3,7 +3,7 @@ services:
   api-dev:
     build:
       context: ./api
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: picpic_api_dev
     restart: unless-stopped
     working_dir: /var/www
@@ -11,7 +11,7 @@ services:
       - ./api:/var/www
       - /var/www/vendor
     ports:
-      - "8000:8000"
+      - "0.0.0.0:8000:8000"  # Bind to all interfaces for Tailscale
     environment:
       - DB_HOST=mysql
       - DB_DATABASE=picpic
@@ -22,6 +22,7 @@ services:
       - SESSION_DRIVER=redis
       - APP_ENV=local
       - APP_DEBUG=true
+      - APP_URL=http://0.0.0.0:8000  # Use 0.0.0.0 for Tailscale compatibility
     depends_on:
       - mysql
       - redis
