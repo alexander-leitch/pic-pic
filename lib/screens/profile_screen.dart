@@ -35,10 +35,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     // Mock data - replace with actual API response
     setState(() {
+      final sanitizedName = widget.userName.replaceAll(' ', '_').toLowerCase();
       userImages = List.generate(50, (index) => {
         'id': index + 1,
-        'url': 'https://picsum.photos/seed/${widget.userName}$index/400/600',
-        'thumbnail_url': 'https://picsum.photos/seed/${widget.userName}$index/200/200',
+        'url': 'https://picsum.photos/seed/${sanitizedName}_$index/800/600',
+        'thumbnail_url': 'https://picsum.photos/seed/${sanitizedName}_$index/200/200',
         'title': 'Photo ${index + 1}',
         'like_count': (index * 7) % 100,
         'comment_count': (index * 3) % 20,
@@ -125,6 +126,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               CircleAvatar(
                 radius: 40,
                 backgroundImage: NetworkImage(widget.userAvatar),
+                onBackgroundImageError: (exception, stackTrace) {
+                  // Fallback for failed avatar load
+                },
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -219,6 +223,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Image.network(
             image['thumbnail_url'],
             fit: BoxFit.cover,
+            gaplessPlayback: true,
             errorBuilder: (context, error, stackTrace) {
               return Container(
                 color: useWhiteBackground ? Colors.grey[200] : Colors.grey[800],

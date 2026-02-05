@@ -37,7 +37,7 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(response.body) as Map<String, dynamic>;
       } else {
         throw Exception('Failed to load images: ${response.statusCode}');
       }

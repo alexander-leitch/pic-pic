@@ -85,7 +85,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   void _loadImages() async {
     await Future.delayed(const Duration(milliseconds: 100));
     if (mounted) {
-      Provider.of<image_prov.ImageProvider>(context, listen: false).initialize();
+      Provider.of<image_prov.ImageProvider>(
+        context,
+        listen: false,
+      ).initialize();
     }
   }
 
@@ -109,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   void _showImageDialog(BuildContext context, ImageModel image) {
     final userName = image.user.name;
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -128,10 +131,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               const SizedBox(height: 4),
               Text(
                 'by @$userName',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -139,14 +139,25 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(image.isLiked == true ? Icons.favorite : Icons.favorite_border),
+                leading: Icon(
+                  image.isLiked == true
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                ),
                 title: Text(image.isLiked == true ? 'Unlike' : 'Like'),
                 subtitle: Text('${image.likeCount} likes'),
                 onTap: () {
-                  Provider.of<image_prov.ImageProvider>(context, listen: false).toggleLike();
+                  Provider.of<image_prov.ImageProvider>(
+                    context,
+                    listen: false,
+                  ).toggleLike();
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(image.isLiked == true ? 'Liked!' : 'Unliked')),
+                    SnackBar(
+                      content: Text(
+                        image.isLiked == true ? 'Liked!' : 'Unliked',
+                      ),
+                    ),
                   );
                 },
               ),
@@ -157,7 +168,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 onTap: () {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Comment feature coming soon!')),
+                    const SnackBar(
+                      content: Text('Comment feature coming soon!'),
+                    ),
                   );
                 },
               ),
@@ -179,7 +192,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 onTap: () {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Will show fewer similar images')),
+                    const SnackBar(
+                      content: Text('Will show fewer similar images'),
+                    ),
                   );
                 },
               ),
@@ -194,7 +209,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       builder: (context) => ProfileScreen(
                         userId: image.user.id,
                         userName: userName,
-                        userAvatar: image.user.avatarUrl ?? 'https://picsum.photos/seed/$userName/200/200',
+                        userAvatar:
+                            image.user.avatarUrl ??
+                            'https://picsum.photos/seed/$userName/200/200',
                       ),
                     ),
                   );
@@ -211,8 +228,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       builder: (context) => const ProfileScreen(
                         userId: 1,
                         userName: 'CurrentUser',
-                        userAvatar: 'https://picsum.photos/seed/currentuser/200/200',
-                        userDescription: 'PicPic enthusiast | Love sharing moments',
+                        userAvatar:
+                            'https://picsum.photos/seed/currentuser/200/200',
+                        userDescription:
+                            'PicPic enthusiast | Love sharing moments',
                       ),
                     ),
                   );
@@ -374,11 +393,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                         alignment: Alignment.centerRight,
                         child: Padding(
                           padding: EdgeInsets.all(32.0),
-                          child: Icon(
-                            Icons.close,
-                            color: Colors.red,
-                            size: 60,
-                          ),
+                          child: Icon(Icons.close, color: Colors.red, size: 60),
                         ),
                       ),
                     ),
@@ -389,6 +404,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                     child: Image.network(
                       nextImage.url,
                       fit: BoxFit.cover,
+                      gaplessPlayback: true,
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
                         return const Center(child: CircularProgressIndicator());
@@ -404,6 +420,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                     child: Image.network(
                       currentImage.url,
                       fit: BoxFit.cover,
+                      gaplessPlayback: true,
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
                         return const Center(child: CircularProgressIndicator());

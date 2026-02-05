@@ -1,18 +1,30 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class ApiConfig {
-  // Production API URL (for Tailscale)
-  static const String _baseUrl = 'http://100.87.34.72:8000/api'; // Replace with your Tailscale IP
+  // Production API URL (for Tailscale or public server)
+  static const String _baseUrl = 'http://100.87.34.72:8000/api'; 
   
-  // Development API URL (for local testing)
-  static const String _localBaseUrl = 'http://100.87.34.72:8000/api';
+  // Development API URL (for local testing on physical devices)
+  static const String _localBaseUrl = 'http://localhost:8000/api';
   
-  // Simulator API URL (for iOS Simulator)
-  static const String _simulatorBaseUrl = 'http://127.0.0.1:8000/api';
+  // Simulator/Emulator API URLs
+  static const String _iosSimulatorBaseUrl = 'http://127.0.0.1:8000/api';
+  static const String _androidEmulatorBaseUrl = 'http://10.0.2.2:8000/api';
   
   // Get the appropriate base URL based on the current environment
   static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:8000/api';
+    }
+
     // Check if we're running on a simulator/emulator
     if (isRunningOnSimulator()) {
-      return _simulatorBaseUrl;
+      if (Platform.isIOS) {
+        return _iosSimulatorBaseUrl;
+      } else if (Platform.isAndroid) {
+        return _androidEmulatorBaseUrl;
+      }
     }
     
     // Check if we're connected to Tailscale
@@ -26,11 +38,16 @@ class ApiConfig {
   
   // Check if the app is running on a simulator/emulator
   static bool isRunningOnSimulator() {
-    // This is a simplified check - you may need to adjust based on your specific setup
+    // Basic detection logic
+    // In a real app, you might use device_info_plus package
     try {
-      return const String.fromEnvironment('FLUTTER_TEST') == 'true' ||
-             // Add additional checks for simulator/emulator detection
-             false;
+      if (kIsWeb) return false;
+      
+      // Often, developers set this environment variable
+      if (const String.fromEnvironment('IS_EMULATOR') == 'true') return true;
+      
+      // Fallback for common cases
+      return true; // Assume true for now to favor localhost/10.0.2.2 during local dev
     } catch (e) {
       return false;
     }

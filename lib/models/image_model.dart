@@ -45,7 +45,7 @@ class ImageModel {
       isActive: json['is_active'] ?? true,
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
-      user: UserModel.fromJson(json['user']),
+      user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
       isLiked: json['is_liked'],
     );
   }
@@ -68,6 +68,19 @@ class ImageModel {
       'is_liked': isLiked,
     };
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ImageModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          url == other.url &&
+          isLiked == other.isLiked &&
+          likeCount == other.likeCount;
+
+  @override
+  int get hashCode => id.hashCode ^ url.hashCode ^ isLiked.hashCode ^ likeCount.hashCode;
 }
 
 class UserModel {
@@ -75,18 +88,30 @@ class UserModel {
   final String name;
   final String email;
   final String? avatarUrl;
+  final String? description;
+  final Map<String, String>? socialLinks;
   final bool isAdmin;
   final bool isActive;
+  final String? ssoProvider;
+  final String? ssoId;
   final DateTime? emailVerifiedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   UserModel({
     required this.id,
     required this.name,
     required this.email,
     this.avatarUrl,
+    this.description,
+    this.socialLinks,
     required this.isAdmin,
     required this.isActive,
+    this.ssoProvider,
+    this.ssoId,
     this.emailVerifiedAt,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -95,11 +120,19 @@ class UserModel {
       name: json['name'],
       email: json['email'],
       avatarUrl: json['avatar_url'],
+      description: json['description'],
+      socialLinks: json['social_links'] != null 
+          ? Map<String, String>.from(json['social_links'])
+          : null,
       isAdmin: json['is_admin'] ?? false,
       isActive: json['is_active'] ?? true,
+      ssoProvider: json['sso_provider'],
+      ssoId: json['sso_id'],
       emailVerifiedAt: json['email_verified_at'] != null
           ? DateTime.parse(json['email_verified_at'])
           : null,
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
     );
   }
 
@@ -109,11 +142,28 @@ class UserModel {
       'name': name,
       'email': email,
       'avatar_url': avatarUrl,
+      'description': description,
+      'social_links': socialLinks,
       'is_admin': isAdmin,
       'is_active': isActive,
+      'sso_provider': ssoProvider,
+      'sso_id': ssoId,
       'email_verified_at': emailVerifiedAt?.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
     };
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          email == other.email;
+
+  @override
+  int get hashCode => id.hashCode ^ email.hashCode;
 }
 
 class PaginatedImageResponse {
@@ -128,11 +178,23 @@ class PaginatedImageResponse {
   });
 
   factory PaginatedImageResponse.fromJson(Map<String, dynamic> json) {
+    // Extract the data array properly
+    final List<dynamic> dataJson = json['data'] as List<dynamic>;
+    final List<ImageModel> imageData = dataJson
+        .map((image) => ImageModel.fromJson(image as Map<String, dynamic>))
+        .toList();
+    
+    // Extract pagination metadata from the main response
+    final Map<String, dynamic> meta = {
+      'current_page': json['current_page'] ?? 1,
+      'last_page': json['last_page'] ?? 1,
+      'per_page': json['per_page'] ?? 20,
+      'total': json['total'] ?? 0,
+    };
+    
     return PaginatedImageResponse(
-      data: (json['data'] as List)
-          .map((image) => ImageModel.fromJson(image))
-          .toList(),
-      meta: json['meta'] ?? {},
+      data: imageData,
+      meta: meta,
       links: json['links'] ?? {},
     );
   }
