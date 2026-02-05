@@ -104,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               );
             },
-            child: const PicPicLogo(),
+            child: const PicPicLogo(showText: false),
           ),
         ),
       ),

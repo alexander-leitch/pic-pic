@@ -42,13 +42,16 @@ class ImageProvider extends ChangeNotifier {
         _hasMoreImages = true;
       }
 
+      print('🔍 Loading images from API - page: $_currentPage, limit: 20, sort: latest');
       final response = await ApiService.getImages(
         page: _currentPage,
         limit: 20,
         sort: 'latest',
       );
-
+      
+      print('📝 API Response received: ${response.keys}');
       final paginatedResponse = PaginatedImageResponse.fromJson(response);
+      print('📊 Parsed ${paginatedResponse.data.length} images, meta: ${paginatedResponse.meta}');
 
       if (refresh) {
         _images = paginatedResponse.data;
@@ -57,8 +60,10 @@ class ImageProvider extends ChangeNotifier {
       }
 
       // Check if there are more pages
-      _hasMoreImages = paginatedResponse.meta['current_page'] < paginatedResponse.meta['last_page'];
-      _currentPage++;
+      final currentPage = paginatedResponse.meta['current_page'] ?? 1;
+      final lastPage = paginatedResponse.meta['last_page'] ?? 1;
+      _hasMoreImages = currentPage < lastPage;
+      _currentPage = currentPage + 1;
 
       // Set current and next images if this is the first load
       if (_currentImage == null && _images.isNotEmpty) {
@@ -72,6 +77,7 @@ class ImageProvider extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
+      print('❌ Error loading images: $e');
       _setError('Failed to load images: $e');
     } finally {
       _setLoading(false);
