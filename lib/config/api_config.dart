@@ -13,27 +13,13 @@ class ApiConfig {
   static const String _androidEmulatorBaseUrl = 'http://10.0.2.2:8000/api';
   
   // Get the appropriate base URL based on the current environment
+  static const String _flyBaseUrl = 'https://picpic-api.fly.dev/api';
+
   static String get baseUrl {
     if (kIsWeb) {
-      return 'http://localhost:8000/api';
+      return _flyBaseUrl;
     }
-
-    // Check if we're running on a simulator/emulator
-    if (isRunningOnSimulator()) {
-      if (Platform.isIOS) {
-        return _iosSimulatorBaseUrl;
-      } else if (Platform.isAndroid) {
-        return _androidEmulatorBaseUrl;
-      }
-    }
-    
-    // Check if we're connected to Tailscale
-    if (isConnectedToTailscale()) {
-      return _baseUrl;
-    }
-    
-    // Default to local development
-    return _localBaseUrl;
+    return _flyBaseUrl;
   }
   
   // Check if the app is running on a simulator/emulator
